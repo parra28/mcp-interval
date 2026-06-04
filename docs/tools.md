@@ -1,6 +1,6 @@
 # Tool, Resource, and Prompt Reference
 
-Complete inventory of everything the Intervals.icu MCP server exposes: up to 58 tools across 11 categories, 4 MCP Resources, and 7 MCP Prompts.
+Complete inventory of everything the Intervals.icu MCP server exposes: up to 59 tools across 12 categories, 4 MCP Resources, and 7 MCP Prompts.
 
 ## Delete Safety Mode
 
@@ -8,9 +8,9 @@ Destructive tools are gated by the optional `INTERVALS_ICU_DELETE_MODE` env var.
 
 | Mode | Registered tools | Events | Activities | Gear | Sport settings | Custom items |
 |---|---|---|---|---|---|---|
-| `safe` (default) | 55 | tomorrow or later | ✗ | ✓ | ✗ | ✗ |
-| `full` | 58 | any date | ✓ | ✓ | ✓ | ✓ |
-| `none` | 52 | ✗ | ✗ | ✗ | ✗ | ✗ |
+| `safe` (default) | 56 | tomorrow or later | ✗ | ✓ | ✗ | ✗ |
+| `full` | 59 | any date | ✓ | ✓ | ✓ | ✓ |
+| `none` | 53 | ✗ | ✗ | ✗ | ✗ | ✗ |
 
 In `safe` mode, `icu_delete_event` and `icu_bulk_delete_events` return a uniform envelope showing what was deleted and what was skipped:
 
@@ -164,6 +164,14 @@ The user's personal additions to their account: custom charts on dashboards, cus
 | `icu_create_custom_item` | Add a new custom chart, field, zones config, or dashboard panel | Created custom item with its id and full configuration |
 | `icu_update_custom_item` | Modify an existing custom addition (rename, reconfigure, change visibility) | Updated item with the new configuration values |
 | `icu_delete_custom_item` | Permanently remove a custom addition *(only registered when `INTERVALS_ICU_DELETE_MODE=full`; data-bearing field types may cascade)* | Deletion confirmation with the id of the removed item |
+
+### Training Plan (1 tool)
+
+High-level orchestration that builds a complete plan in one call: it creates a `PLAN` folder and bulk-uploads every workout and note, computing each item's day offset from the plan's earliest date and mapping note `distance` (phase length) to the API `days` field.
+
+| Tool | Description | Result |
+| ---- | ----------- | ------ |
+| `icu_create_training_plan` | Create a full training plan in one call — a PLAN folder plus all its workouts and notes | Summary with `plan_name`, `folder_id`, `base_date`, `total_items`, `workouts`, `notes`, `created` and `failed` counts. Required item fields (`category`, `start_date_local`, `name`) are validated up front; missing data is returned as `validation_error` suggestions instead of uploading a partial plan |
 
 ## MCP Resources
 
