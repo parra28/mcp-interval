@@ -150,7 +150,7 @@ async def create_training_plan(
 
             # 3. Bulk create
             created = await client.create_multiple_workouts(payload, athlete_id=athlete_id)
-            succeeded = sum(1 for r in created if isinstance(r, dict) and r.get("id"))
+            succeeded = sum(1 for r in created if r.get("id"))
 
             return ResponseBuilder.build_response(
                 data={
