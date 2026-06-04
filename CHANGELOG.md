@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `icu_get_activity_details` now emits `metadata.subjective_scales` (`{"feel": "1-5", "rpe": "1-10"}`) whenever the corresponding values are present, so downstream LLMs stop interpreting raw ordinals on an assumed 0-10 scale.
 - `icu_get_activity_details` now returns **all fields** provided by the Intervals.icu API, grouped into sections: `duration_distance`, `speed_pace`, `power`, `heart_rate`, `cadence`, `training`, `power_model`, `zones`, `altitude`, `weather`, `nutrition`, `subjective`, `equipment`, `flags`, `achievements`, and `analysis_meta`. Previously only ~25 fields were exposed; now the full 100+ field API response is surfaced.
 - `Activity` model now uses `extra="allow"` so any API field not explicitly declared in the model is captured in `model_extra` and automatically included in the response without requiring a code change.
+- **25 new tools** covering previously unexposed Intervals.icu endpoints (tool count 58 → 83; safe-mode default 55 → 80, `none` 52 → 76):
+  - Activity analysis (9): `icu_get_activity_time_at_hr`, `icu_get_activity_weather_summary`, `icu_get_activity_hr_load_model`, `icu_get_activity_power_spike_model`, `icu_get_activity_power_vs_hr`, `icu_get_activity_hr_curve`, `icu_get_activity_pace_curve`, `icu_get_activity_power_curve`, `icu_get_activity_power_curves`.
+  - Workout management (12): `icu_list_workouts`, `icu_get_workout`, `icu_create_workout`, `icu_create_multiple_workouts`, `icu_update_workout`, `icu_delete_workout` (safe/full gated), `icu_duplicate_workouts`, `icu_import_workout`, `icu_download_workouts_zip`, `icu_download_workout`, `icu_download_event_workout`, `icu_download_workout_global`.
+  - Workout folders (2): `icu_create_folder`, `icu_update_folder`.
+  - Athlete curves (2): `icu_get_power_hr_curve`, `icu_get_mmp_model`.
+- New `tools/workout_management.py` module and a shared `tools/_downloads.py` helper (`download_and_respond`) for file-returning tools, refactored out of `tools/activities.py`.
 
 ### Changed
 - **Breaking — response shape:** `icu_get_activity_details` renamed the `calories` output key to `calories_burned` and moved it out of the `other` section into the new `nutrition` section. The API field is energy expenditure; the prior label collided with the wellness-side `calories_consumed`/`kcalConsumed` (intake), confusing intake-vs-expenditure comparisons.

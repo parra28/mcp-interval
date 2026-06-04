@@ -696,6 +696,46 @@ class ICUClient:
         response = await self._request("GET", f"/athlete/{athlete_id}/pace-curves", params=params)
         return CurveSet(**response.json())
 
+    async def get_power_hr_curve(
+        self,
+        start: str,
+        end: str,
+        athlete_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Get the athlete's power-vs-heart-rate curve for a date range.
+
+        Args:
+            start: Start date (ISO-8601, required by the API)
+            end: End date (ISO-8601, required by the API)
+            athlete_id: Athlete ID (uses config default if not provided)
+        """
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {"start": start, "end": end}
+        response = await self._request(
+            "GET", f"/athlete/{athlete_id}/power-hr-curve", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_mmp_model(
+        self,
+        sport_type: str = "Ride",
+        athlete_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Get the Mean Maximal Power model used to resolve %MMP workout steps.
+
+        Args:
+            sport_type: Sport type (e.g. Ride, Run). Required by the API.
+            athlete_id: Athlete ID (uses config default if not provided)
+        """
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {"type": sport_type}
+        response = await self._request(
+            "GET", f"/athlete/{athlete_id}/mmp-model", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
     # ==================== Workout Library Endpoints ====================
 
     async def get_workout_folders(
@@ -714,6 +754,26 @@ class ICUClient:
         response = await self._request("GET", f"/athlete/{athlete_id}/folders")
         adapter = TypeAdapter(list[Folder])
         return adapter.validate_python(response.json())
+
+    async def create_folder(
+        self, folder_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Folder:
+        """Create a new workout folder or training plan."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/folders", json=folder_data
+        )
+        return Folder(**response.json())
+
+    async def update_folder(
+        self, folder_id: int, folder_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Folder:
+        """Update an existing workout folder or training plan."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "PUT", f"/athlete/{athlete_id}/folders/{folder_id}", json=folder_data
+        )
+        return Folder(**response.json())
 
     # ==================== Activity Analysis Endpoints ====================
 
@@ -1371,29 +1431,247 @@ class ICUClient:
         await self._request("DELETE", f"/athlete/{athlete_id}/custom-item/{item_id}")
         return True
 
-    # ==================== Training Plan Endpoints ====================
+    # ==================== Activity Analysis (extended) Endpoints ====================
 
-    async def create_folder(
-        self, folder_data: dict[str, Any], athlete_id: str | None = None
-    ) -> Folder:
-        """Create a new workout folder or training plan."""
+    async def get_activity_time_at_hr(self, activity_id: str) -> dict[str, Any]:
+        """Get time-at-heart-rate distribution for an activity.
+
+        Returns the raw API payload (variable shape) describing how long the
+        athlete spent at each heart rate / zone during the activity.
+        """
+        response = await self._request("GET", f"/activity/{activity_id}/time-at-hr")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_weather_summary(
+        self,
+        activity_id: str,
+        start_index: int | None = None,
+        end_index: int | None = None,
+    ) -> dict[str, Any]:
+        """Get the weather summary for an activity (or a sub-range of it)."""
+        params: dict[str, int] = {}
+        if start_index is not None:
+            params["start_index"] = start_index
+        if end_index is not None:
+            params["end_index"] = end_index
+        response = await self._request(
+            "GET", f"/activity/{activity_id}/weather-summary", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_hr_load_model(self, activity_id: str) -> dict[str, Any]:
+        """Get the heart-rate training-load model for an activity."""
+        response = await self._request("GET", f"/activity/{activity_id}/hr-load-model")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_power_spike_model(self, activity_id: str) -> dict[str, Any]:
+        """Get the power-spike detection model for an activity."""
+        response = await self._request("GET", f"/activity/{activity_id}/power-spike-model")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_power_vs_hr(self, activity_id: str) -> dict[str, Any]:
+        """Get the power-vs-heart-rate relationship data for an activity (JSON)."""
+        response = await self._request("GET", f"/activity/{activity_id}/power-vs-hr")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_hr_curve(self, activity_id: str) -> dict[str, Any]:
+        """Get the heart-rate curve (max sustained HR by duration) for one activity."""
+        response = await self._request("GET", f"/activity/{activity_id}/hr-curve")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_pace_curve(
+        self, activity_id: str, use_gap: bool = False
+    ) -> dict[str, Any]:
+        """Get the pace curve (best pace by duration) for one activity.
+
+        Args:
+            activity_id: Activity ID
+            use_gap: Use Grade Adjusted Pace (running) when True
+        """
+        params: dict[str, str] = {}
+        if use_gap:
+            params["gap"] = "true"
+        response = await self._request(
+            "GET", f"/activity/{activity_id}/pace-curve", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_power_curve(
+        self, activity_id: str, fatigue: str | None = None
+    ) -> dict[str, Any]:
+        """Get the power curve (max sustained power by duration) for one activity.
+
+        Args:
+            activity_id: Activity ID
+            fatigue: Optional fatigue stream filter (API-specific token)
+        """
+        params: dict[str, str] = {}
+        if fatigue:
+            params["fatigue"] = fatigue
+        response = await self._request(
+            "GET", f"/activity/{activity_id}/power-curve", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_power_curves(
+        self,
+        activity_id: str,
+        types: list[str] | None = None,
+        fatigue: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Get multiple power curves (several streams) for one activity.
+
+        Args:
+            activity_id: Activity ID
+            types: Optional list of stream types to include
+            fatigue: Optional list of fatigue filters
+        """
+        params: dict[str, list[str]] = {}
+        if types:
+            params["types"] = types
+        if fatigue:
+            params["fatigue"] = fatigue
+        response = await self._request(
+            "GET", f"/activity/{activity_id}/power-curves", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    # ==================== Workout Library (write/extended) Endpoints ====================
+
+    async def list_workouts(self, athlete_id: str | None = None) -> list[Workout]:
+        """List every workout in the athlete's library (across all folders)."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request("GET", f"/athlete/{athlete_id}/workouts")
+        adapter = TypeAdapter(list[Workout])
+        return adapter.validate_python(response.json())
+
+    async def get_workout(self, workout_id: int, athlete_id: str | None = None) -> Workout:
+        """Get a single workout from the library by ID."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request("GET", f"/athlete/{athlete_id}/workouts/{workout_id}")
+        return Workout(**response.json())
+
+    async def create_workout(
+        self, workout_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Workout:
+        """Create a new workout in a folder/plan in the athlete's library."""
         athlete_id = athlete_id or self.config.intervals_icu_athlete_id
         response = await self._request(
-            "POST", f"/athlete/{athlete_id}/folders", json=folder_data
+            "POST", f"/athlete/{athlete_id}/workouts", json=workout_data
         )
-        return Folder(**response.json())
+        return Workout(**response.json())
 
     async def create_multiple_workouts(
         self, workouts: list[dict[str, Any]], athlete_id: str | None = None
-    ) -> list[dict[str, Any]]:
-        """Bulk-create workouts and/or notes in a folder/plan in one request.
-
-        Returns the raw API payload (a list of created records) so callers can
-        inspect per-item results — plan items mix workouts and NOTE entries.
-        """
+    ) -> list[Workout]:
+        """Create multiple workouts in a folder/plan in a single request."""
         athlete_id = athlete_id or self.config.intervals_icu_athlete_id
         response = await self._request(
             "POST", f"/athlete/{athlete_id}/workouts/bulk", json=workouts
         )
-        result: list[dict[str, Any]] = response.json()
+        adapter = TypeAdapter(list[Workout])
+        return adapter.validate_python(response.json())
+
+    async def update_workout(
+        self, workout_id: int, workout_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Workout:
+        """Update an existing workout in the library."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "PUT", f"/athlete/{athlete_id}/workouts/{workout_id}", json=workout_data
+        )
+        return Workout(**response.json())
+
+    async def delete_workout(
+        self, workout_id: int, others: bool = False, athlete_id: str | None = None
+    ) -> bool:
+        """Delete a workout (optionally sibling workouts added with it on a plan)."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {}
+        if others:
+            params["others"] = "true"
+        await self._request(
+            "DELETE", f"/athlete/{athlete_id}/workouts/{workout_id}", params=params
+        )
+        return True
+
+    async def duplicate_workouts(
+        self, payload: dict[str, Any], athlete_id: str | None = None
+    ) -> dict[str, Any]:
+        """Duplicate workouts on a plan."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/duplicate-workouts", json=payload
+        )
+        result: dict[str, Any] = response.json()
         return result
+
+    async def import_workout(
+        self,
+        folder_id: int,
+        file_payload: dict[str, Any],
+        sport_type: str,
+        athlete_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Create a workout from a .zwo/.mrc/.erg/.fit file in a folder."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {"type": sport_type}
+        response = await self._request(
+            "POST",
+            f"/athlete/{athlete_id}/folders/{folder_id}/import-workout",
+            params=params,
+            json=file_payload,
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def download_workouts_zip(
+        self,
+        oldest: str,
+        newest: str,
+        athlete_id: str | None = None,
+    ) -> bytes:
+        """Download planned workouts in a date range as a .zip file."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {"oldest": oldest, "newest": newest}
+        response = await self._request(
+            "GET", f"/athlete/{athlete_id}/workouts.zip", params=params
+        )
+        return response.content
+
+    async def download_workout(
+        self,
+        workout_data: dict[str, Any],
+        ext: str,
+        athlete_id: str | None = None,
+    ) -> bytes:
+        """Convert a workout to .zwo/.mrc/.erg/.fit and return the file bytes."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/download-workout{ext}", json=workout_data
+        )
+        return response.content
+
+    async def download_event_workout(
+        self, event_id: int, ext: str, athlete_id: str | None = None
+    ) -> bytes:
+        """Download a planned (calendar) workout as .zwo/.mrc/.erg/.fit."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "GET", f"/athlete/{athlete_id}/events/{event_id}/download{ext}"
+        )
+        return response.content
+
+    async def download_workout_global(self, workout_data: dict[str, Any], ext: str) -> bytes:
+        """Convert an arbitrary workout payload to a file (not athlete-scoped)."""
+        response = await self._request("POST", f"/download-workout{ext}", json=workout_data)
+        return response.content

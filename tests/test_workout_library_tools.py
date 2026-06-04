@@ -6,9 +6,66 @@ from unittest.mock import AsyncMock, MagicMock
 from httpx import Response
 
 from intervals_icu_mcp.tools.workout_library import (
+    create_folder,
     get_workout_library,
     get_workouts_in_folder,
+    update_folder,
 )
+
+
+def _ctx(mock_config):
+    ctx = MagicMock()
+    ctx.get_state = AsyncMock(return_value=mock_config)
+    return ctx
+
+
+class TestCreateFolder:
+    async def test_success(self, mock_config, respx_mock):
+        respx_mock.post("/athlete/i123456/folders").mock(
+            return_value=Response(200, json={"id": 42, "name": "Base Plan", "duration_weeks": 8})
+        )
+        result = await create_folder(
+            folder_json='{"name": "Base Plan", "type": "PLAN"}', ctx=_ctx(mock_config)
+        )
+        response = json.loads(result)
+        assert response["data"]["id"] == 42
+        assert response["data"]["duration_weeks"] == 8
+
+    async def test_invalid_json(self, mock_config):
+        result = await create_folder(folder_json="{bad", ctx=_ctx(mock_config))
+        assert json.loads(result)["error"]["type"] == "validation_error"
+
+    async def test_non_object(self, mock_config):
+        result = await create_folder(folder_json="[1,2]", ctx=_ctx(mock_config))
+        assert json.loads(result)["error"]["type"] == "validation_error"
+
+    async def test_api_error(self, mock_config, respx_mock):
+        respx_mock.post("/athlete/i123456/folders").mock(return_value=Response(500))
+        result = await create_folder(folder_json='{"name": "X"}', ctx=_ctx(mock_config))
+        assert json.loads(result)["error"]["type"] == "api_error"
+
+
+class TestUpdateFolder:
+    async def test_success(self, mock_config, respx_mock):
+        respx_mock.put("/athlete/i123456/folders/42").mock(
+            return_value=Response(200, json={"id": 42, "name": "Renamed Plan"})
+        )
+        result = await update_folder(
+            folder_id=42, folder_json='{"name": "Renamed Plan"}', ctx=_ctx(mock_config)
+        )
+        response = json.loads(result)
+        assert response["data"]["name"] == "Renamed Plan"
+
+    async def test_invalid_json(self, mock_config):
+        result = await update_folder(folder_id=42, folder_json="nope", ctx=_ctx(mock_config))
+        assert json.loads(result)["error"]["type"] == "validation_error"
+
+    async def test_api_error(self, mock_config, respx_mock):
+        respx_mock.put("/athlete/i123456/folders/42").mock(return_value=Response(404))
+        result = await update_folder(
+            folder_id=42, folder_json='{"name": "X"}', ctx=_ctx(mock_config)
+        )
+        assert json.loads(result)["error"]["type"] == "api_error"
 
 
 class TestGetWorkoutLibrary:

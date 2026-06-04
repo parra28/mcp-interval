@@ -1,16 +1,16 @@
 # Tool, Resource, and Prompt Reference
 
-Complete inventory of everything the Intervals.icu MCP server exposes: up to 59 tools across 12 categories, 4 MCP Resources, and 7 MCP Prompts.
+Complete inventory of everything the Intervals.icu MCP server exposes: up to 84 tools across 13 categories, 4 MCP Resources, and 7 MCP Prompts.
 
 ## Delete Safety Mode
 
 Destructive tools are gated by the optional `INTERVALS_ICU_DELETE_MODE` env var. The gate sits **outside the model's reach** — tools that aren't registered cannot be invoked by any prompt or parameter.
 
-| Mode | Registered tools | Events | Activities | Gear | Sport settings | Custom items |
-|---|---|---|---|---|---|---|
-| `safe` (default) | 56 | tomorrow or later | ✗ | ✓ | ✗ | ✗ |
-| `full` | 59 | any date | ✓ | ✓ | ✓ | ✓ |
-| `none` | 53 | ✗ | ✗ | ✗ | ✗ | ✗ |
+| Mode | Registered tools | Events | Activities | Gear | Workouts | Sport settings | Custom items |
+|---|---|---|---|---|---|---|---|
+| `safe` (default) | 81 | tomorrow or later | ✗ | ✓ | ✓ | ✗ | ✗ |
+| `full` | 84 | any date | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `none` | 77 | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
 
 In `safe` mode, `icu_delete_event` and `icu_bulk_delete_events` return a uniform envelope showing what was deleted and what was skipped:
 
@@ -65,7 +65,7 @@ Set the mode in your client config alongside the credentials:
 | `icu_bulk_create_manual_activities` | Create multiple manual activities with upsert on external_id | List of created/updated activities with id, name, type, and date for each |
 | `icu_update_activity_streams` | Update raw timeseries streams for an activity (JSON or CSV) | Operation confirmation with the raw response returned by the API |
 
-### Activity Analysis (8 tools)
+### Activity Analysis (17 tools)
 
 | Tool | Description | Result |
 | ---- | ----------- | ------ |
@@ -77,6 +77,15 @@ Set the mode in your client config alongside the credentials:
 | `icu_get_hr_histogram` | Get heart rate distribution histogram for an activity | Array of buckets `{hr_range: {min_bpm, max_bpm}, time_seconds}` showing time distribution by heart rate |
 | `icu_get_pace_histogram` | Get pace distribution histogram for an activity | Array of buckets `{pace_range: {min, max}, time_seconds}` showing time distribution by pace (sec/km or sec/100m) |
 | `icu_get_gap_histogram` | Get grade-adjusted pace histogram for an activity | Array of buckets with grade-adjusted pace (GAP) showing the flat-equivalent effort per time band |
+| `icu_get_activity_time_at_hr` | Get time-at-heart-rate distribution for one activity | Raw time-at-HR payload showing how long was spent at each HR / zone in that session |
+| `icu_get_activity_weather_summary` | Get the weather summary for one activity (optional sub-range) | Weather object with temperature, wind, clouds, precipitation and feels-like for the activity or an index range |
+| `icu_get_activity_hr_load_model` | Get the HR training-load model for one activity | Model object describing how the HR-based load (HRSS/TRIMP) was computed for that session |
+| `icu_get_activity_power_spike_model` | Get the power-spike detection model for one activity | Model object flagging implausible power spikes / dropouts in the activity data |
+| `icu_get_activity_power_vs_hr` | Get power-vs-HR data points for one activity | Paired power/HR samples for cardiac-drift and aerobic-efficiency analysis within the session |
+| `icu_get_activity_hr_curve` | Get the HR curve for one activity | Best sustained HR by duration within that single activity |
+| `icu_get_activity_pace_curve` | Get the pace curve for one activity (optional GAP) | Best sustained pace by duration within that activity, raw or grade-adjusted |
+| `icu_get_activity_power_curve` | Get the power curve for one activity | Best sustained watts by duration within that single activity |
+| `icu_get_activity_power_curves` | Get multiple power curves (several streams) for one activity | Per-stream power curves for the activity in a single response |
 
 ### Activity Messages (2 tools)
 
@@ -117,20 +126,41 @@ The threaded notes/comments shown under an activity — the user's own training 
 | `icu_duplicate_events` | Duplicate one or more events with configurable copies and spacing | List of duplicated events with original id, new id, and assigned date |
 | `icu_apply_training_plan` | Apply an entire training plan (workout folder) onto the calendar | Confirmation with the number of events created and the date range of the applied plan |
 
-### Performance / Curves (3 tools)
+### Performance / Curves (5 tools)
 
 | Tool | Description | Result |
 | ---- | ----------- | ------ |
 | `icu_get_power_curves` | Analyze power curves with FTP estimation and power zones | Mean maximal power curve by duration (1s→60min+) with watts and W/kg per point, estimated FTP, and derived power zone table |
 | `icu_get_hr_curves` | Analyze heart rate curves with HR zones | Maximum sustained HR curve by duration with bpm per point and derived HR zone table |
 | `icu_get_pace_curves` | Analyze running/swimming pace curves with optional GAP | Best pace curve by duration in sec/km or sec/100m, with and without grade adjustment (GAP) where applicable |
+| `icu_get_power_hr_curve` | Get the athlete's power-vs-HR curve over a date range | Paired power/HR data across the range for cross-session aerobic-efficiency / decoupling trends |
+| `icu_get_mmp_model` | Get the Mean Maximal Power model for %MMP workout steps | MMP model parameters used to resolve %MMP targets in workouts to watts for the given sport |
 
-### Workout Library (2 tools)
+### Workout Library (4 tools)
 
 | Tool | Description | Result |
 | ---- | ----------- | ------ |
 | `icu_get_workout_library` | Browse workout folders and training plans | Root folder tree with id, name, workout count, and subfolders |
 | `icu_get_workouts_in_folder` | View all workouts in a specific folder | List of workouts in the folder with id, name, description, sport, estimated duration, target TSS, and workout DSL code |
+| `icu_create_folder` | Create a new workout folder or training plan | Created folder/plan with its id and fields (name, plan scheduling fields when applicable) |
+| `icu_update_folder` | Update an existing workout folder or training plan | Updated folder/plan with the new values of the modified fields |
+
+### Workout Management (12 tools)
+
+| Tool | Description | Result |
+| ---- | ----------- | ------ |
+| `icu_list_workouts` | List every workout in the athlete's library | Flat list of all workouts with id, name, type, folder, duration, training load and intensity |
+| `icu_get_workout` | Fetch one library workout by ID | Full workout object with id, name, type, folder, and metrics |
+| `icu_create_workout` | Create one new workout in a folder/plan | Created workout with its id and fields (structure supplied via the workout DSL in `description`) |
+| `icu_create_multiple_workouts` | Create many workouts in a single request | List of created workouts with id and metadata for each |
+| `icu_update_workout` | Update an existing library workout | Updated workout with the new values of the modified fields |
+| `icu_delete_workout` | Delete a workout from the library *(safe/full only)* | Confirmation with `workout_id`, `deleted: true`, and whether siblings were removed |
+| `icu_duplicate_workouts` | Duplicate workouts on a plan | API result describing the duplicated workouts |
+| `icu_import_workout` | Import a workout from a .zwo/.mrc/.erg/.fit file into a folder | API result for the imported workout (id, name) and target folder |
+| `icu_download_workouts_zip` | Download planned workouts in a date range as a .zip | The .zip saved to disk or returned base64-encoded with its size |
+| `icu_download_workout` | Convert one library/athlete workout to a device file | The .zwo/.mrc/.erg/.fit file saved to disk or returned base64-encoded |
+| `icu_download_event_workout` | Download a planned (calendar) workout as a device file | The .zwo/.mrc/.erg/.fit file for the event, saved to disk or base64-encoded |
+| `icu_download_workout_global` | Convert an arbitrary workout payload to a file (no athlete context) | The converted file saved to disk or returned base64-encoded |
 
 ### Gear Management (6 tools)
 
