@@ -95,7 +95,12 @@ from .tools.sport_settings import (
     update_sport_settings,
 )
 from .tools.wellness import get_wellness_data, get_wellness_for_date, update_wellness
-from .tools.workout_library import get_workout_library, get_workouts_in_folder
+from .tools.workout_library import (
+    create_folder,
+    get_workout_library,
+    get_workouts_in_folder,
+    update_folder,
+)
 from .tools.workout_management import (
     create_multiple_workouts,
     create_workout,
@@ -568,6 +573,24 @@ mcp.tool(
         "openWorldHint": True,
     },
 )(get_workouts_in_folder)
+mcp.tool(
+    name="icu_create_folder",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(create_folder)
+mcp.tool(
+    name="icu_update_folder",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(update_folder)
 mcp.tool(
     name="icu_list_workouts",
     annotations={

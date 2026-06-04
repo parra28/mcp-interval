@@ -715,6 +715,26 @@ class ICUClient:
         adapter = TypeAdapter(list[Folder])
         return adapter.validate_python(response.json())
 
+    async def create_folder(
+        self, folder_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Folder:
+        """Create a new workout folder or training plan."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/folders", json=folder_data
+        )
+        return Folder(**response.json())
+
+    async def update_folder(
+        self, folder_id: int, folder_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Folder:
+        """Update an existing workout folder or training plan."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "PUT", f"/athlete/{athlete_id}/folders/{folder_id}", json=folder_data
+        )
+        return Folder(**response.json())
+
     # ==================== Activity Analysis Endpoints ====================
 
     async def get_activity_intervals(
