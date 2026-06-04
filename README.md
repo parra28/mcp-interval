@@ -2,24 +2,16 @@
 
 # Intervals.icu MCP Server
 
-![intervals-icu-mcp demo](https://raw.githubusercontent.com/parra28/mcp-interval/main/docs/demo.gif)
-
 A Model Context Protocol (MCP) server for Intervals.icu integration. Access your training data, wellness metrics, and performance analysis through Claude, ChatGPT, and other LLMs.
 
 > Originally based on [eddmann/intervals-icu-mcp](https://github.com/eddmann/intervals-icu-mcp) (MIT licensed). This project is an independent continuation with significant bug fixes and new features — see [CHANGELOG.md](https://github.com/parra28/mcp-interval/blob/main/CHANGELOG.md) for details.
 
-[![Tests](https://github.com/parra28/mcp-interval/actions/workflows/test.yml/badge.svg)](https://github.com/parra28/mcp-interval/actions/workflows/test.yml)
-[![intervals-icu-mcp MCP server](https://glama.ai/mcp/servers/parra28/mcp-interval/badges/score.svg)](https://glama.ai/mcp/servers/parra28/mcp-interval)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/parra28/mcp-interval/blob/main/LICENSE)
-[![Docker](https://img.shields.io/badge/docker-ghcr.io-blue?logo=docker)](https://github.com/parra28/mcp-interval/pkgs/container/intervals-icu-mcp)
 
 ## Overview
 
 83 tools spanning activities, activity analysis, activity messages, athlete profile, wellness, events/calendar, performance curves, workout library, workout management, gear, sport settings, and custom items — plus 4 MCP Resources (athlete profile, workout syntax, event categories, custom item schemas) and 7 MCP Prompts (training analysis, recovery check, weekly planning, and more). See [Available Tools](#available-tools) for the per-category breakdown.
 
 ## Quick Start
-
-<a href="https://cursor.com/en/install-mcp?name=intervals-icu&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJpbnRlcnZhbHMtaWN1LW1jcCJdLCJlbnYiOnsiSU5URVJWQUxTX0lDVV9BUElfS0VZIjoiIiwiSU5URVJWQUxTX0lDVV9BVEhMRVRFX0lEIjoiIn19"><picture><source media="(prefers-color-scheme: dark)" srcset="https://cursor.com/deeplink/mcp-install-dark.svg"><img alt="Install in Cursor" src="https://cursor.com/deeplink/mcp-install-light.svg"></picture></a>
 
 Or for Claude Desktop, in 30 seconds:
 
