@@ -15,7 +15,7 @@ A Model Context Protocol (MCP) server for Intervals.icu integration. Access your
 
 ## Overview
 
-58 tools spanning activities, activity analysis, activity messages, athlete profile, wellness, events/calendar, performance curves, workout library, gear, sport settings, and custom items — plus 4 MCP Resources (athlete profile, workout syntax, event categories, custom item schemas) and 7 MCP Prompts (training analysis, recovery check, weekly planning, and more). See [Available Tools](#available-tools) for the per-category breakdown.
+59 tools spanning activities, activity analysis, activity messages, athlete profile, wellness, events/calendar, performance curves, workout library, gear, sport settings, custom items, and training-plan creation — plus 4 MCP Resources (athlete profile, workout syntax, event categories, custom item schemas) and 7 MCP Prompts (training analysis, recovery check, weekly planning, and more). See [Available Tools](#available-tools) for the per-category breakdown.
 
 ## Quick Start
 
@@ -247,7 +247,7 @@ For the full catalogue of example prompts by category, see [docs/examples.md](ht
 
 ## Available Tools
 
-58 tools, 4 resources, and 7 prompt templates. One-line summary below — full reference in [docs/tools.md](https://github.com/parra28/mcp-interval/blob/main/docs/tools.md).
+59 tools, 4 resources, and 7 prompt templates. One-line summary below — full reference in [docs/tools.md](https://github.com/parra28/mcp-interval/blob/main/docs/tools.md).
 
 | Category | Tools | Summary |
 |---|---|---|
@@ -262,6 +262,7 @@ For the full catalogue of example prompts by category, see [docs/examples.md](ht
 | [Gear Management](https://github.com/parra28/mcp-interval/blob/main/docs/tools.md#gear-management-6-tools) | 6 | Track equipment and maintenance reminders |
 | [Sport Settings](https://github.com/parra28/mcp-interval/blob/main/docs/tools.md#sport-settings-5-tools) | 5 | FTP, FTHR, pace thresholds, and zones |
 | [Custom Items](https://github.com/parra28/mcp-interval/blob/main/docs/tools.md#custom-items-5-tools) | 5 | User customizations: custom charts, fields, zones, dashboard panels |
+| [Training Plan](https://github.com/parra28/mcp-interval/blob/main/docs/tools.md#training-plan-1-tool) | 1 | Create a full plan (folder + bulk workouts/notes) in one call |
 
 ## Documentation
 
