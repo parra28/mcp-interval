@@ -1484,3 +1484,134 @@ class ICUClient:
         )
         result: dict[str, Any] = response.json()
         return result
+
+    # ==================== Workout Library (write/extended) Endpoints ====================
+
+    async def list_workouts(self, athlete_id: str | None = None) -> list[Workout]:
+        """List every workout in the athlete's library (across all folders)."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request("GET", f"/athlete/{athlete_id}/workouts")
+        adapter = TypeAdapter(list[Workout])
+        return adapter.validate_python(response.json())
+
+    async def get_workout(self, workout_id: int, athlete_id: str | None = None) -> Workout:
+        """Get a single workout from the library by ID."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request("GET", f"/athlete/{athlete_id}/workouts/{workout_id}")
+        return Workout(**response.json())
+
+    async def create_workout(
+        self, workout_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Workout:
+        """Create a new workout in a folder/plan in the athlete's library."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/workouts", json=workout_data
+        )
+        return Workout(**response.json())
+
+    async def create_multiple_workouts(
+        self, workouts: list[dict[str, Any]], athlete_id: str | None = None
+    ) -> list[Workout]:
+        """Create multiple workouts in a folder/plan in a single request."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/workouts/bulk", json=workouts
+        )
+        adapter = TypeAdapter(list[Workout])
+        return adapter.validate_python(response.json())
+
+    async def update_workout(
+        self, workout_id: int, workout_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Workout:
+        """Update an existing workout in the library."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "PUT", f"/athlete/{athlete_id}/workouts/{workout_id}", json=workout_data
+        )
+        return Workout(**response.json())
+
+    async def delete_workout(
+        self, workout_id: int, others: bool = False, athlete_id: str | None = None
+    ) -> bool:
+        """Delete a workout (optionally sibling workouts added with it on a plan)."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {}
+        if others:
+            params["others"] = "true"
+        await self._request(
+            "DELETE", f"/athlete/{athlete_id}/workouts/{workout_id}", params=params
+        )
+        return True
+
+    async def duplicate_workouts(
+        self, payload: dict[str, Any], athlete_id: str | None = None
+    ) -> dict[str, Any]:
+        """Duplicate workouts on a plan."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/duplicate-workouts", json=payload
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def import_workout(
+        self,
+        folder_id: int,
+        file_payload: dict[str, Any],
+        sport_type: str,
+        athlete_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Create a workout from a .zwo/.mrc/.erg/.fit file in a folder."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {"type": sport_type}
+        response = await self._request(
+            "POST",
+            f"/athlete/{athlete_id}/folders/{folder_id}/import-workout",
+            params=params,
+            json=file_payload,
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def download_workouts_zip(
+        self,
+        oldest: str,
+        newest: str,
+        athlete_id: str | None = None,
+    ) -> bytes:
+        """Download planned workouts in a date range as a .zip file."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {"oldest": oldest, "newest": newest}
+        response = await self._request(
+            "GET", f"/athlete/{athlete_id}/workouts.zip", params=params
+        )
+        return response.content
+
+    async def download_workout(
+        self,
+        workout_data: dict[str, Any],
+        ext: str,
+        athlete_id: str | None = None,
+    ) -> bytes:
+        """Convert a workout to .zwo/.mrc/.erg/.fit and return the file bytes."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/download-workout{ext}", json=workout_data
+        )
+        return response.content
+
+    async def download_event_workout(
+        self, event_id: int, ext: str, athlete_id: str | None = None
+    ) -> bytes:
+        """Download a planned (calendar) workout as .zwo/.mrc/.erg/.fit."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "GET", f"/athlete/{athlete_id}/events/{event_id}/download{ext}"
+        )
+        return response.content
+
+    async def download_workout_global(self, workout_data: dict[str, Any], ext: str) -> bytes:
+        """Convert an arbitrary workout payload to a file (not athlete-scoped)."""
+        response = await self._request("POST", f"/download-workout{ext}", json=workout_data)
+        return response.content

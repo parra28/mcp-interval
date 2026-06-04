@@ -96,6 +96,20 @@ from .tools.sport_settings import (
 )
 from .tools.wellness import get_wellness_data, get_wellness_for_date, update_wellness
 from .tools.workout_library import get_workout_library, get_workouts_in_folder
+from .tools.workout_management import (
+    create_multiple_workouts,
+    create_workout,
+    delete_workout,
+    download_event_workout,
+    download_workout,
+    download_workout_global,
+    download_workouts_zip,
+    duplicate_workouts,
+    get_workout,
+    import_workout,
+    list_workouts,
+    update_workout,
+)
 
 # Register activity tools
 mcp.tool(
@@ -554,6 +568,115 @@ mcp.tool(
         "openWorldHint": True,
     },
 )(get_workouts_in_folder)
+mcp.tool(
+    name="icu_list_workouts",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(list_workouts)
+mcp.tool(
+    name="icu_get_workout",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_workout)
+mcp.tool(
+    name="icu_create_workout",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(create_workout)
+mcp.tool(
+    name="icu_create_multiple_workouts",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(create_multiple_workouts)
+mcp.tool(
+    name="icu_update_workout",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(update_workout)
+if _DELETE_MODE in ("safe", "full"):
+    mcp.tool(
+        name="icu_delete_workout",
+        annotations={
+            "readOnlyHint": False,
+            "destructiveHint": True,
+            "idempotentHint": True,
+            "openWorldHint": True,
+        },
+    )(delete_workout)
+mcp.tool(
+    name="icu_duplicate_workouts",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(duplicate_workouts)
+mcp.tool(
+    name="icu_import_workout",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(import_workout)
+mcp.tool(
+    name="icu_download_workouts_zip",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(download_workouts_zip)
+mcp.tool(
+    name="icu_download_workout",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(download_workout)
+mcp.tool(
+    name="icu_download_event_workout",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(download_event_workout)
+mcp.tool(
+    name="icu_download_workout_global",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(download_workout_global)
 
 # Register gear management tools
 mcp.tool(

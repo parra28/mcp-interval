@@ -8,6 +8,7 @@ from fastmcp import Context
 from ..auth import ICUConfig
 from ..client import ICUAPIError, ICUClient
 from ..response_builder import ResponseBuilder
+from ._downloads import download_and_respond
 from ._strava import strava_limitation_note
 
 
@@ -601,64 +602,6 @@ async def delete_activity(
         )
 
 
-def _download_and_respond(
-    activity_id: str,
-    file_content: bytes,
-    output_path: str | None,
-    query_type: str,
-    format_name: str | None = None,
-) -> str:
-    """Helper to process and respond to file downloads."""
-    try:
-        if output_path:
-            # Save to file
-            import os
-
-            os.makedirs(
-                os.path.dirname(output_path) if os.path.dirname(output_path) else ".",
-                exist_ok=True,
-            )
-            with open(output_path, "wb") as f:
-                f.write(file_content)
-
-            data: dict[str, Any] = {
-                "activity_id": activity_id,
-                "saved_to": output_path,
-                "size_bytes": len(file_content),
-            }
-            if format_name:
-                data["format"] = format_name
-
-            return ResponseBuilder.build_response(
-                data=data,
-                query_type=query_type,
-                metadata={"message": f"{format_name or 'Activity'} file saved to {output_path}"},
-            )
-        else:
-            # Return base64 encoded
-            import base64
-
-            encoded = base64.b64encode(file_content).decode("utf-8")
-
-            data = {
-                "activity_id": activity_id,
-                "size_bytes": len(file_content),
-                "content_base64": encoded,
-                "note": f"File content is base64 encoded. Decode to get {'original' if not format_name else format_name} file.",
-            }
-            if format_name:
-                data["format"] = format_name
-
-            return ResponseBuilder.build_response(
-                data=data,
-                query_type=query_type,
-            )
-    except Exception as e:
-        return ResponseBuilder.build_error_response(
-            f"Unexpected error saving file: {str(e)}", error_type="internal_error"
-        )
-
-
 async def download_activity_file(
     activity_id: Annotated[str, "Activity ID to download"],
     output_path: Annotated[str | None, "Path to save the file (optional)"] = None,
@@ -677,7 +620,7 @@ async def download_activity_file(
     try:
         async with ICUClient(config) as client:
             file_content = await client.download_activity_file(activity_id)
-            return _download_and_respond(
+            return download_and_respond(
                 activity_id, file_content, output_path, "download_activity_file"
             )
 
@@ -701,7 +644,7 @@ async def download_fit_file(
     try:
         async with ICUClient(config) as client:
             file_content = await client.download_fit_file(activity_id)
-            return _download_and_respond(
+            return download_and_respond(
                 activity_id, file_content, output_path, "download_fit_file", "FIT"
             )
 
@@ -725,7 +668,7 @@ async def download_gpx_file(
     try:
         async with ICUClient(config) as client:
             file_content = await client.download_gpx_file(activity_id)
-            return _download_and_respond(
+            return download_and_respond(
                 activity_id, file_content, output_path, "download_gpx_file", "GPX"
             )
 
