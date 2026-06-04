@@ -85,6 +85,7 @@ from .tools.sport_settings import (
     get_sport_settings,
     update_sport_settings,
 )
+from .tools.training_plan import create_training_plan
 from .tools.wellness import get_wellness_data, get_wellness_for_date, update_wellness
 from .tools.workout_library import get_workout_library, get_workouts_in_folder
 
@@ -637,6 +638,17 @@ if _DELETE_MODE == "full":
             "openWorldHint": True,
         },
     )(delete_custom_item)
+
+# Register training plan tools
+mcp.tool(
+    name="icu_create_training_plan",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(create_training_plan)
 
 
 # MCP Resources - Provide ongoing context

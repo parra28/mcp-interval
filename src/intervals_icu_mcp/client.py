@@ -1370,3 +1370,30 @@ class ICUClient:
         athlete_id = athlete_id or self.config.intervals_icu_athlete_id
         await self._request("DELETE", f"/athlete/{athlete_id}/custom-item/{item_id}")
         return True
+
+    # ==================== Training Plan Endpoints ====================
+
+    async def create_folder(
+        self, folder_data: dict[str, Any], athlete_id: str | None = None
+    ) -> Folder:
+        """Create a new workout folder or training plan."""
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/folders", json=folder_data
+        )
+        return Folder(**response.json())
+
+    async def create_multiple_workouts(
+        self, workouts: list[dict[str, Any]], athlete_id: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Bulk-create workouts and/or notes in a folder/plan in one request.
+
+        Returns the raw API payload (a list of created records) so callers can
+        inspect per-item results — plan items mix workouts and NOTE entries.
+        """
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        response = await self._request(
+            "POST", f"/athlete/{athlete_id}/workouts/bulk", json=workouts
+        )
+        result: list[dict[str, Any]] = response.json()
+        return result
