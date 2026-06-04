@@ -554,3 +554,259 @@ async def get_gap_histogram(
         return ResponseBuilder.build_error_response(
             f"Unexpected error: {str(e)}", error_type="internal_error"
         )
+
+
+async def get_activity_time_at_hr(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    ctx: Context | None = None,
+) -> str:
+    """Time spent at each heart rate / HR zone within ONE activity — raw time-at-HR distribution.
+
+    Use when the user asks "how long was I at high HR?" for a specific
+    session. For the binned HR histogram use icu_get_hr_histogram; for the
+    best-sustained-HR curve use icu_get_activity_hr_curve.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_time_at_hr(activity_id)
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "time_at_hr": data},
+                query_type="activity_time_at_hr",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_activity_weather_summary(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    start_index: Annotated[int | None, "Optional start stream index to scope the summary"] = None,
+    end_index: Annotated[int | None, "Optional end stream index to scope the summary"] = None,
+    ctx: Context | None = None,
+) -> str:
+    """Weather summary for ONE activity — temperature, wind, clouds, precipitation, feels-like.
+
+    Use for "what was the weather on my ride?". Optionally scope to a
+    sub-range of the activity with start_index / end_index.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_weather_summary(
+                activity_id, start_index=start_index, end_index=end_index
+            )
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "weather": data},
+                query_type="activity_weather_summary",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_activity_hr_load_model(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    ctx: Context | None = None,
+) -> str:
+    """Heart-rate training-load model for ONE activity — how HRSS/TRIMP load was computed.
+
+    Use to understand the HR-based load attribution for a session. For the
+    overall load numbers use icu_get_activity_details (training section).
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_hr_load_model(activity_id)
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "hr_load_model": data},
+                query_type="activity_hr_load_model",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_activity_power_spike_model(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    ctx: Context | None = None,
+) -> str:
+    """Power-spike detection model for ONE activity — flags implausible power spikes in the data.
+
+    Use to diagnose power-meter dropouts or spikes affecting an activity's
+    metrics.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_power_spike_model(activity_id)
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "power_spike_model": data},
+                query_type="activity_power_spike_model",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_activity_power_vs_hr(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    ctx: Context | None = None,
+) -> str:
+    """Power-vs-heart-rate relationship for ONE activity — aerobic-decoupling / efficiency data points.
+
+    Use for cardiac-drift and aerobic-efficiency analysis within a single
+    session.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_power_vs_hr(activity_id)
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "power_vs_hr": data},
+                query_type="activity_power_vs_hr",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_activity_hr_curve(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    ctx: Context | None = None,
+) -> str:
+    """Heart-rate curve for ONE activity — best sustained HR across durations within that session.
+
+    Use for "highest 5-min HR in this ride". For the athlete's all-time HR
+    curve across activities use icu_get_hr_curves; for time-in-zone use
+    icu_get_hr_histogram.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_hr_curve(activity_id)
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "hr_curve": data},
+                query_type="activity_hr_curve",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_activity_pace_curve(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    use_gap: Annotated[bool, "Use Grade Adjusted Pace (running) instead of raw pace"] = False,
+    ctx: Context | None = None,
+) -> str:
+    """Pace curve for ONE activity — best sustained pace across durations within that session.
+
+    Use for "fastest 1km in this run". Set use_gap for elevation-normalized
+    pace. For the athlete's all-time pace curve use icu_get_pace_curves.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_pace_curve(activity_id, use_gap=use_gap)
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "use_gap": use_gap, "pace_curve": data},
+                query_type="activity_pace_curve",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_activity_power_curve(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    fatigue: Annotated[str | None, "Optional fatigue stream filter (API-specific token)"] = None,
+    ctx: Context | None = None,
+) -> str:
+    """Power curve for ONE activity — best sustained watts across durations within that session.
+
+    Use for "peak 20-min power in this ride". For the athlete's all-time
+    power curve use icu_get_power_curves; for multiple streams at once use
+    icu_get_activity_power_curves.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_power_curve(activity_id, fatigue=fatigue)
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "power_curve": data},
+                query_type="activity_power_curve",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_activity_power_curves(
+    activity_id: Annotated[str, "Activity ID to analyze"],
+    types: Annotated[
+        list[str] | None, "Optional list of stream types to include (e.g. watts, watts_alt)"
+    ] = None,
+    fatigue: Annotated[list[str] | None, "Optional list of fatigue filters"] = None,
+    ctx: Context | None = None,
+) -> str:
+    """Multiple power curves (several streams) for ONE activity in a single call.
+
+    Use when you need power curves for more than one stream at once. For a
+    single stream use icu_get_activity_power_curve.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_activity_power_curves(activity_id, types=types, fatigue=fatigue)
+            return ResponseBuilder.build_response(
+                data={"activity_id": activity_id, "power_curves": data},
+                query_type="activity_power_curves",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )

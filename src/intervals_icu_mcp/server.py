@@ -40,8 +40,17 @@ from .tools.activities import (
     update_activity_streams,
 )
 from .tools.activity_analysis import (
+    get_activity_hr_curve,
+    get_activity_hr_load_model,
     get_activity_intervals,
+    get_activity_pace_curve,
+    get_activity_power_curve,
+    get_activity_power_curves,
+    get_activity_power_spike_model,
+    get_activity_power_vs_hr,
     get_activity_streams,
+    get_activity_time_at_hr,
+    get_activity_weather_summary,
     get_best_efforts,
     get_gap_histogram,
     get_hr_histogram,
@@ -77,7 +86,7 @@ from .tools.gear import (
     update_gear,
     update_gear_reminder,
 )
-from .tools.performance import get_power_curves
+from .tools.performance import get_mmp_model, get_power_curves, get_power_hr_curve
 from .tools.sport_settings import (
     apply_sport_settings,
     create_sport_settings,
@@ -86,7 +95,26 @@ from .tools.sport_settings import (
     update_sport_settings,
 )
 from .tools.wellness import get_wellness_data, get_wellness_for_date, update_wellness
-from .tools.workout_library import get_workout_library, get_workouts_in_folder
+from .tools.workout_library import (
+    create_folder,
+    get_workout_library,
+    get_workouts_in_folder,
+    update_folder,
+)
+from .tools.workout_management import (
+    create_multiple_workouts,
+    create_workout,
+    delete_workout,
+    download_event_workout,
+    download_workout,
+    download_workout_global,
+    download_workouts_zip,
+    duplicate_workouts,
+    get_workout,
+    import_workout,
+    list_workouts,
+    update_workout,
+)
 
 # Register activity tools
 mcp.tool(
@@ -272,6 +300,87 @@ mcp.tool(
         "openWorldHint": True,
     },
 )(get_gap_histogram)
+mcp.tool(
+    name="icu_get_activity_time_at_hr",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_time_at_hr)
+mcp.tool(
+    name="icu_get_activity_weather_summary",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_weather_summary)
+mcp.tool(
+    name="icu_get_activity_hr_load_model",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_hr_load_model)
+mcp.tool(
+    name="icu_get_activity_power_spike_model",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_power_spike_model)
+mcp.tool(
+    name="icu_get_activity_power_vs_hr",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_power_vs_hr)
+mcp.tool(
+    name="icu_get_activity_hr_curve",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_hr_curve)
+mcp.tool(
+    name="icu_get_activity_pace_curve",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_pace_curve)
+mcp.tool(
+    name="icu_get_activity_power_curve",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_power_curve)
+mcp.tool(
+    name="icu_get_activity_power_curves",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_power_curves)
 
 # Register athlete tools
 mcp.tool(
@@ -427,6 +536,24 @@ mcp.tool(
     },
 )(get_power_curves)
 mcp.tool(
+    name="icu_get_power_hr_curve",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_power_hr_curve)
+mcp.tool(
+    name="icu_get_mmp_model",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_mmp_model)
+mcp.tool(
     name="icu_get_hr_curves",
     annotations={
         "readOnlyHint": True,
@@ -464,6 +591,133 @@ mcp.tool(
         "openWorldHint": True,
     },
 )(get_workouts_in_folder)
+mcp.tool(
+    name="icu_create_folder",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(create_folder)
+mcp.tool(
+    name="icu_update_folder",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(update_folder)
+mcp.tool(
+    name="icu_list_workouts",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(list_workouts)
+mcp.tool(
+    name="icu_get_workout",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_workout)
+mcp.tool(
+    name="icu_create_workout",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(create_workout)
+mcp.tool(
+    name="icu_create_multiple_workouts",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(create_multiple_workouts)
+mcp.tool(
+    name="icu_update_workout",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(update_workout)
+if _DELETE_MODE in ("safe", "full"):
+    mcp.tool(
+        name="icu_delete_workout",
+        annotations={
+            "readOnlyHint": False,
+            "destructiveHint": True,
+            "idempotentHint": True,
+            "openWorldHint": True,
+        },
+    )(delete_workout)
+mcp.tool(
+    name="icu_duplicate_workouts",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(duplicate_workouts)
+mcp.tool(
+    name="icu_import_workout",
+    annotations={
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+)(import_workout)
+mcp.tool(
+    name="icu_download_workouts_zip",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(download_workouts_zip)
+mcp.tool(
+    name="icu_download_workout",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(download_workout)
+mcp.tool(
+    name="icu_download_event_workout",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(download_event_workout)
+mcp.tool(
+    name="icu_download_workout_global",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(download_workout_global)
 
 # Register gear management tools
 mcp.tool(

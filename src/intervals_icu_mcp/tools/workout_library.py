@@ -1,12 +1,34 @@
 """Workout library tools for Intervals.icu MCP server."""
 
-from typing import Annotated, Any
+import json
+from typing import Annotated, Any, cast
 
 from fastmcp import Context
 
 from ..auth import ICUConfig
 from ..client import ICUAPIError, ICUClient
+from ..models import Folder
 from ..response_builder import ResponseBuilder
+
+
+def _folder_to_dict(folder: Folder) -> dict[str, Any]:
+    """Serialize a Folder, omitting None values."""
+    item: dict[str, Any] = {"id": folder.id}
+    if folder.name is not None:
+        item["name"] = folder.name
+    if folder.description is not None:
+        item["description"] = folder.description
+    if folder.num_workouts is not None:
+        item["num_workouts"] = folder.num_workouts
+    if folder.start_date_local is not None:
+        item["start_date_local"] = folder.start_date_local
+    if folder.duration_weeks is not None:
+        item["duration_weeks"] = folder.duration_weeks
+    if folder.hours_per_week_min is not None:
+        item["hours_per_week_min"] = folder.hours_per_week_min
+    if folder.hours_per_week_max is not None:
+        item["hours_per_week_max"] = folder.hours_per_week_max
+    return item
 
 
 async def get_workout_library(
@@ -165,6 +187,88 @@ async def get_workouts_in_folder(
                 query_type="folder_workouts",
             )
 
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def create_folder(
+    folder_json: Annotated[
+        str, "JSON object for the folder/plan (name, description, type, optional plan fields)"
+    ],
+    athlete_id: Annotated[str | None, "Athlete ID (for coaches managing multiple athletes)"] = None,
+    ctx: Context | None = None,
+) -> str:
+    """Create a new workout folder or training plan in the library.
+
+    A folder groups workouts; a plan adds scheduling fields (start date,
+    duration weeks, hours/week). To add workouts afterwards use
+    icu_create_workout with the returned folder_id.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        folder_data = json.loads(folder_json)
+    except json.JSONDecodeError as e:
+        return ResponseBuilder.build_error_response(
+            f"Invalid JSON: {str(e)}", error_type="validation_error"
+        )
+    if not isinstance(folder_data, dict):
+        return ResponseBuilder.build_error_response(
+            "Folder payload must be a JSON object", error_type="validation_error"
+        )
+
+    folder_dict = cast(dict[str, Any], folder_data)
+    try:
+        async with ICUClient(config) as client:
+            folder = await client.create_folder(folder_dict, athlete_id=athlete_id)
+            return ResponseBuilder.build_response(
+                data=_folder_to_dict(folder),
+                query_type="create_folder",
+                metadata={"message": f"Created folder {folder.id}"},
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def update_folder(
+    folder_id: Annotated[int, "Folder ID to update"],
+    folder_json: Annotated[str, "JSON object with the fields to change"],
+    athlete_id: Annotated[str | None, "Athlete ID (for coaches managing multiple athletes)"] = None,
+    ctx: Context | None = None,
+) -> str:
+    """Update an existing workout folder or training plan (rename, reschedule, edit plan fields)."""
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        folder_data = json.loads(folder_json)
+    except json.JSONDecodeError as e:
+        return ResponseBuilder.build_error_response(
+            f"Invalid JSON: {str(e)}", error_type="validation_error"
+        )
+    if not isinstance(folder_data, dict):
+        return ResponseBuilder.build_error_response(
+            "Folder payload must be a JSON object", error_type="validation_error"
+        )
+
+    folder_dict = cast(dict[str, Any], folder_data)
+    try:
+        async with ICUClient(config) as client:
+            folder = await client.update_folder(folder_id, folder_dict, athlete_id=athlete_id)
+            return ResponseBuilder.build_response(
+                data=_folder_to_dict(folder),
+                query_type="update_folder",
+                metadata={"message": f"Updated folder {folder_id}"},
+            )
     except ICUAPIError as e:
         return ResponseBuilder.build_error_response(e.message, error_type="api_error")
     except Exception as e:
