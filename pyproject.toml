@@ -1,0 +1,107 @@
+[project]
+name = "intervals-icu-mcp"
+dynamic = ["version"]
+description = "Model Context Protocol server for Intervals.icu — access training data, wellness metrics, and performance analysis from Claude, ChatGPT, and other LLMs."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Diego Sánchez", email = "diegosanchezdie@gmail.com" }]
+keywords = [
+    "intervals.icu",
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "chatgpt",
+    "training",
+    "cycling",
+    "running",
+    "fitness",
+    "wellness",
+    "sports-analytics",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "fastmcp>=3.0.0",
+    "httpx>=0.28.1",
+    "pydantic>=2.12.0",
+    "pydantic-settings>=2.11.0",
+    "python-dotenv>=1.1.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/parra28/mcp-interval"
+Repository = "https://github.com/parra28/mcp-interval"
+Documentation = "https://github.com/parra28/mcp-interval/blob/main/docs/tools.md"
+Issues = "https://github.com/parra28/mcp-interval/issues"
+Changelog = "https://github.com/parra28/mcp-interval/blob/main/CHANGELOG.md"
+
+[project.scripts]
+intervals-icu-mcp = "intervals_icu_mcp.server:main"
+intervals-icu-mcp-auth = "intervals_icu_mcp.scripts.setup_auth:main"
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "respx>=0.22.0",
+    "ruff>=0.14.0",
+    "pyright>=1.1.408",
+    "pytest-cov>=7.1.0",
+    "asgi-lifespan>=2.1.0",
+    "anthropic>=0.40.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".claude/skills/mcp-builder"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I", "UP"]
+ignore = ["E501"]  # Line length enforced by ruff format instead
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py files
+"src/intervals_icu_mcp/server.py" = ["E402"]  # Imports must come after FastMCP initialization
+
+[tool.pyright]
+strict = ["src"]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false

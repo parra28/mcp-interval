@@ -1,0 +1,247 @@
+[
+  {
+    "id": "wellness_log_rpe",
+    "prompt": "Log RPE 7 for today",
+    "expected_tool": "icu_update_wellness",
+    "bucket": "a",
+    "notes": "Pure schema; no state needed"
+  },
+  {
+    "id": "wellness_range_week",
+    "prompt": "How has my sleep been this week?",
+    "expected_tool": "icu_get_wellness_data",
+    "bucket": "a",
+    "notes": "Wellness range vs single-date disambiguation"
+  },
+  {
+    "id": "wellness_specific_date",
+    "prompt": "What was my HRV on Monday?",
+    "expected_tool": "icu_get_wellness_for_date",
+    "bucket": "a",
+    "notes": "Single named date routes to for_date, not range"
+  },
+  {
+    "id": "athlete_profile",
+    "prompt": "Show my athlete profile",
+    "expected_tool": "icu_get_athlete_profile",
+    "bucket": "a",
+    "notes": "Basic routing"
+  },
+  {
+    "id": "fitness_summary",
+    "prompt": "What's my current CTL and TSB?",
+    "expected_tool": "icu_get_fitness_summary",
+    "bucket": "a",
+    "notes": "Fitness terminology should anchor"
+  },
+  {
+    "id": "recent_activities",
+    "prompt": "Show my last 5 rides",
+    "expected_tool": "icu_get_recent_activities",
+    "bucket": "a",
+    "notes": "Default activity-list query"
+  },
+  {
+    "id": "search_light",
+    "prompt": "Find my threshold rides from last month",
+    "expected_tool": "icu_search_activities",
+    "bucket": "a",
+    "notes": "No specific metric named → LIGHT search"
+  },
+  {
+    "id": "search_full_with_metric",
+    "prompt": "Find my threshold rides where normalized power was above 250W",
+    "expected_tool": "icu_search_activities_full",
+    "bucket": "a",
+    "notes": "NP metric only in FULL payload"
+  },
+  {
+    "id": "calendar_week",
+    "prompt": "What's on my calendar this week?",
+    "expected_tool": "icu_get_calendar_events",
+    "bucket": "a",
+    "notes": "Broad calendar query"
+  },
+  {
+    "id": "upcoming_workouts",
+    "prompt": "What's my next workout?",
+    "expected_tool": "icu_get_upcoming_workouts",
+    "bucket": "a",
+    "notes": "Filtered to workouts only"
+  },
+  {
+    "id": "power_curves",
+    "prompt": "Show my power curve for this season",
+    "expected_tool": "icu_get_power_curves",
+    "bucket": "a",
+    "notes": "Cross-activity curve, not single-activity histogram"
+  },
+  {
+    "id": "hr_curves",
+    "prompt": "Show my best 5-minute heart rate over the last year",
+    "expected_tool": "icu_get_hr_curves",
+    "bucket": "a",
+    "notes": "Best-effort across activities = curve"
+  },
+  {
+    "id": "pace_curves",
+    "prompt": "Show my pace curve for the last 3 months",
+    "expected_tool": "icu_get_pace_curves",
+    "bucket": "a",
+    "notes": "Run/swim curve"
+  },
+  {
+    "id": "workout_library",
+    "prompt": "Show my workout library",
+    "expected_tool": "icu_get_workout_library",
+    "bucket": "a",
+    "notes": "Library entry point"
+  },
+  {
+    "id": "custom_items_list",
+    "prompt": "List my custom charts",
+    "expected_tool": "icu_get_custom_items",
+    "bucket": "a",
+    "notes": "Custom items list"
+  },
+  {
+    "id": "sport_settings_list",
+    "prompt": "What are my sport settings?",
+    "expected_tool": "icu_get_sport_settings",
+    "bucket": "a",
+    "notes": "Settings read"
+  },
+  {
+    "id": "update_ftp",
+    "prompt": "Update my FTP to 280 watts for sport setting 1",
+    "expected_tool": "icu_update_sport_settings",
+    "bucket": "a",
+    "notes": "FTP update routes to update, not apply or create"
+  },
+  {
+    "id": "create_event_one",
+    "prompt": "Add a recovery ride for tomorrow",
+    "expected_tool": "icu_create_event",
+    "bucket": "a",
+    "notes": "Single event creation"
+  },
+  {
+    "id": "create_event_many",
+    "prompt": "Add an easy run for tomorrow, Wednesday, and Friday",
+    "expected_tool": "icu_bulk_create_events",
+    "bucket": "a",
+    "notes": "Multi-day → bulk variant"
+  },
+  {
+    "id": "gear_list",
+    "prompt": "Show me my gear",
+    "expected_tool": "icu_get_gear_list",
+    "bucket": "a",
+    "notes": "Gear inventory"
+  },
+  {
+    "id": "create_gear",
+    "prompt": "Add my new road bike as gear",
+    "expected_tool": "icu_create_gear",
+    "bucket": "a",
+    "notes": "Gear creation"
+  },
+  {
+    "id": "create_custom_item_field",
+    "prompt": "Add a custom RPE input field on my wellness page",
+    "expected_tool": "icu_create_custom_item",
+    "bucket": "a",
+    "notes": "Custom item creation"
+  },
+  {
+    "id": "search_intervals_cross",
+    "prompt": "Find all my threshold intervals from this year",
+    "expected_tool": "icu_search_intervals",
+    "bucket": "a",
+    "notes": "Cross-activity interval search (different from get_activity_intervals)"
+  },
+  {
+    "id": "activity_details_id",
+    "prompt": "Tell me about activity i99999999",
+    "expected_tool": "icu_get_activity_details",
+    "bucket": "b",
+    "notes": "Fake ID; routes to details for summary-style request"
+  },
+  {
+    "id": "activity_intervals_id",
+    "prompt": "Show the per-lap breakdown of activity i99999999",
+    "expected_tool": "icu_get_activity_intervals",
+    "bucket": "b",
+    "notes": "Per-lap signal routes to intervals"
+  },
+  {
+    "id": "activity_streams_id",
+    "prompt": "Get the second-by-second power data for activity i99999999",
+    "expected_tool": "icu_get_activity_streams",
+    "bucket": "b",
+    "notes": "Raw time-series request routes to streams"
+  },
+  {
+    "id": "activity_breakdown_ambiguous",
+    "prompt": "Give me the breakdown of activity i99999999",
+    "expected_tool": "icu_get_activity_intervals",
+    "bucket": "b",
+    "notes": "Disambiguator test: 'breakdown' should route to per-LAP intervals not summary details"
+  },
+  {
+    "id": "power_histogram_id",
+    "prompt": "Show power distribution for activity i99999999",
+    "expected_tool": "icu_get_power_histogram",
+    "bucket": "b",
+    "notes": "Distribution within one activity = histogram, not curve"
+  },
+  {
+    "id": "duplicate_events_id",
+    "prompt": "Duplicate event 99999999 onto the next 4 Mondays",
+    "expected_tool": "icu_duplicate_events",
+    "bucket": "b",
+    "notes": "Copy existing, not create new"
+  },
+  {
+    "id": "get_event_id",
+    "prompt": "Get details for calendar event 99999999",
+    "expected_tool": "icu_get_event",
+    "bucket": "b",
+    "notes": "Single event by ID"
+  },
+  {
+    "id": "activity_messages_read",
+    "prompt": "Show comments on activity i99999999",
+    "expected_tool": "icu_get_activity_messages",
+    "bucket": "b",
+    "notes": "Plural = READ"
+  },
+  {
+    "id": "activity_messages_write",
+    "prompt": "Add a note 'felt strong today' to activity i99999999",
+    "expected_tool": "icu_add_activity_message",
+    "bucket": "b",
+    "notes": "Singular = WRITE"
+  },
+  {
+    "id": "download_original",
+    "prompt": "Download the original file for activity i99999999",
+    "expected_tool": "icu_download_activity_file",
+    "bucket": "b",
+    "notes": "Original format vs FIT/GPX conversion"
+  },
+  {
+    "id": "best_efforts_id",
+    "prompt": "What are my best 5-minute power efforts in activity i99999999?",
+    "expected_tool": "icu_get_best_efforts",
+    "bucket": "b",
+    "notes": "Within-activity best efforts (not cross-activity curves)"
+  },
+  {
+    "id": "apply_training_plan_id",
+    "prompt": "Apply training plan folder 12345 starting next Monday",
+    "expected_tool": "icu_apply_training_plan",
+    "bucket": "b",
+    "notes": "Schedule a plan onto the calendar"
+  }
+]
