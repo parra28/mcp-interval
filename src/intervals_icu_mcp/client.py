@@ -1370,3 +1370,117 @@ class ICUClient:
         athlete_id = athlete_id or self.config.intervals_icu_athlete_id
         await self._request("DELETE", f"/athlete/{athlete_id}/custom-item/{item_id}")
         return True
+
+    # ==================== Activity Analysis (extended) Endpoints ====================
+
+    async def get_activity_time_at_hr(self, activity_id: str) -> dict[str, Any]:
+        """Get time-at-heart-rate distribution for an activity.
+
+        Returns the raw API payload (variable shape) describing how long the
+        athlete spent at each heart rate / zone during the activity.
+        """
+        response = await self._request("GET", f"/activity/{activity_id}/time-at-hr")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_weather_summary(
+        self,
+        activity_id: str,
+        start_index: int | None = None,
+        end_index: int | None = None,
+    ) -> dict[str, Any]:
+        """Get the weather summary for an activity (or a sub-range of it)."""
+        params: dict[str, int] = {}
+        if start_index is not None:
+            params["start_index"] = start_index
+        if end_index is not None:
+            params["end_index"] = end_index
+        response = await self._request(
+            "GET", f"/activity/{activity_id}/weather-summary", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_hr_load_model(self, activity_id: str) -> dict[str, Any]:
+        """Get the heart-rate training-load model for an activity."""
+        response = await self._request("GET", f"/activity/{activity_id}/hr-load-model")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_power_spike_model(self, activity_id: str) -> dict[str, Any]:
+        """Get the power-spike detection model for an activity."""
+        response = await self._request("GET", f"/activity/{activity_id}/power-spike-model")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_power_vs_hr(self, activity_id: str) -> dict[str, Any]:
+        """Get the power-vs-heart-rate relationship data for an activity (JSON)."""
+        response = await self._request("GET", f"/activity/{activity_id}/power-vs-hr")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_hr_curve(self, activity_id: str) -> dict[str, Any]:
+        """Get the heart-rate curve (max sustained HR by duration) for one activity."""
+        response = await self._request("GET", f"/activity/{activity_id}/hr-curve")
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_pace_curve(
+        self, activity_id: str, use_gap: bool = False
+    ) -> dict[str, Any]:
+        """Get the pace curve (best pace by duration) for one activity.
+
+        Args:
+            activity_id: Activity ID
+            use_gap: Use Grade Adjusted Pace (running) when True
+        """
+        params: dict[str, str] = {}
+        if use_gap:
+            params["gap"] = "true"
+        response = await self._request(
+            "GET", f"/activity/{activity_id}/pace-curve", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_power_curve(
+        self, activity_id: str, fatigue: str | None = None
+    ) -> dict[str, Any]:
+        """Get the power curve (max sustained power by duration) for one activity.
+
+        Args:
+            activity_id: Activity ID
+            fatigue: Optional fatigue stream filter (API-specific token)
+        """
+        params: dict[str, str] = {}
+        if fatigue:
+            params["fatigue"] = fatigue
+        response = await self._request(
+            "GET", f"/activity/{activity_id}/power-curve", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_activity_power_curves(
+        self,
+        activity_id: str,
+        types: list[str] | None = None,
+        fatigue: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Get multiple power curves (several streams) for one activity.
+
+        Args:
+            activity_id: Activity ID
+            types: Optional list of stream types to include
+            fatigue: Optional list of fatigue filters
+        """
+        params: dict[str, list[str]] = {}
+        if types:
+            params["types"] = types
+        if fatigue:
+            params["fatigue"] = fatigue
+        response = await self._request(
+            "GET", f"/activity/{activity_id}/power-curves", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result

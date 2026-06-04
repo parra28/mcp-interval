@@ -40,8 +40,17 @@ from .tools.activities import (
     update_activity_streams,
 )
 from .tools.activity_analysis import (
+    get_activity_hr_curve,
+    get_activity_hr_load_model,
     get_activity_intervals,
+    get_activity_pace_curve,
+    get_activity_power_curve,
+    get_activity_power_curves,
+    get_activity_power_spike_model,
+    get_activity_power_vs_hr,
     get_activity_streams,
+    get_activity_time_at_hr,
+    get_activity_weather_summary,
     get_best_efforts,
     get_gap_histogram,
     get_hr_histogram,
@@ -272,6 +281,87 @@ mcp.tool(
         "openWorldHint": True,
     },
 )(get_gap_histogram)
+mcp.tool(
+    name="icu_get_activity_time_at_hr",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_time_at_hr)
+mcp.tool(
+    name="icu_get_activity_weather_summary",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_weather_summary)
+mcp.tool(
+    name="icu_get_activity_hr_load_model",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_hr_load_model)
+mcp.tool(
+    name="icu_get_activity_power_spike_model",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_power_spike_model)
+mcp.tool(
+    name="icu_get_activity_power_vs_hr",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_power_vs_hr)
+mcp.tool(
+    name="icu_get_activity_hr_curve",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_hr_curve)
+mcp.tool(
+    name="icu_get_activity_pace_curve",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_pace_curve)
+mcp.tool(
+    name="icu_get_activity_power_curve",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_power_curve)
+mcp.tool(
+    name="icu_get_activity_power_curves",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_activity_power_curves)
 
 # Register athlete tools
 mcp.tool(
