@@ -181,3 +181,60 @@ async def get_power_curves(
         return ResponseBuilder.build_error_response(
             f"Unexpected error: {str(e)}", error_type="internal_error"
         )
+
+
+async def get_power_hr_curve(
+    start_date: Annotated[str, "Start date of the range (YYYY-MM-DD)"],
+    end_date: Annotated[str, "End date of the range (YYYY-MM-DD)"],
+    athlete_id: Annotated[str | None, "Athlete ID (for coaches managing multiple athletes)"] = None,
+    ctx: Context | None = None,
+) -> str:
+    """Power-vs-heart-rate curve for the ATHLETE across a date range — aerobic efficiency / decoupling over time.
+
+    Use for cross-session aerobic-efficiency trends. For one activity's
+    power-vs-HR use icu_get_activity_power_vs_hr.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_power_hr_curve(start_date, end_date, athlete_id=athlete_id)
+            return ResponseBuilder.build_response(
+                data={"start": start_date, "end": end_date, "power_hr_curve": data},
+                query_type="power_hr_curve",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )
+
+
+async def get_mmp_model(
+    sport_type: Annotated[str, "Sport type (e.g. Ride, Run)"] = "Ride",
+    athlete_id: Annotated[str | None, "Athlete ID (for coaches managing multiple athletes)"] = None,
+    ctx: Context | None = None,
+) -> str:
+    """Mean Maximal Power (MMP) model for the athlete — the power model that resolves %MMP steps in workouts.
+
+    Use to understand how %MMP workout targets translate to watts. For the
+    best-effort power curve use icu_get_power_curves.
+    """
+    assert ctx is not None
+    config: ICUConfig = await ctx.get_state("config")
+
+    try:
+        async with ICUClient(config) as client:
+            data = await client.get_mmp_model(sport_type=sport_type, athlete_id=athlete_id)
+            return ResponseBuilder.build_response(
+                data={"sport_type": sport_type, "mmp_model": data},
+                query_type="mmp_model",
+            )
+    except ICUAPIError as e:
+        return ResponseBuilder.build_error_response(e.message, error_type="api_error")
+    except Exception as e:
+        return ResponseBuilder.build_error_response(
+            f"Unexpected error: {str(e)}", error_type="internal_error"
+        )

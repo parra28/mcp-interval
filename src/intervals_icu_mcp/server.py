@@ -86,7 +86,7 @@ from .tools.gear import (
     update_gear,
     update_gear_reminder,
 )
-from .tools.performance import get_power_curves
+from .tools.performance import get_mmp_model, get_power_curves, get_power_hr_curve
 from .tools.sport_settings import (
     apply_sport_settings,
     create_sport_settings,
@@ -535,6 +535,24 @@ mcp.tool(
         "openWorldHint": True,
     },
 )(get_power_curves)
+mcp.tool(
+    name="icu_get_power_hr_curve",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_power_hr_curve)
+mcp.tool(
+    name="icu_get_mmp_model",
+    annotations={
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+)(get_mmp_model)
 mcp.tool(
     name="icu_get_hr_curves",
     annotations={

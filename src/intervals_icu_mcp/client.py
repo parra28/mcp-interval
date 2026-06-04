@@ -696,6 +696,46 @@ class ICUClient:
         response = await self._request("GET", f"/athlete/{athlete_id}/pace-curves", params=params)
         return CurveSet(**response.json())
 
+    async def get_power_hr_curve(
+        self,
+        start: str,
+        end: str,
+        athlete_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Get the athlete's power-vs-heart-rate curve for a date range.
+
+        Args:
+            start: Start date (ISO-8601, required by the API)
+            end: End date (ISO-8601, required by the API)
+            athlete_id: Athlete ID (uses config default if not provided)
+        """
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {"start": start, "end": end}
+        response = await self._request(
+            "GET", f"/athlete/{athlete_id}/power-hr-curve", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
+    async def get_mmp_model(
+        self,
+        sport_type: str = "Ride",
+        athlete_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Get the Mean Maximal Power model used to resolve %MMP workout steps.
+
+        Args:
+            sport_type: Sport type (e.g. Ride, Run). Required by the API.
+            athlete_id: Athlete ID (uses config default if not provided)
+        """
+        athlete_id = athlete_id or self.config.intervals_icu_athlete_id
+        params: dict[str, str] = {"type": sport_type}
+        response = await self._request(
+            "GET", f"/athlete/{athlete_id}/mmp-model", params=params
+        )
+        result: dict[str, Any] = response.json()
+        return result
+
     # ==================== Workout Library Endpoints ====================
 
     async def get_workout_folders(
